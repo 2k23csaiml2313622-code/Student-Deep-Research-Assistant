@@ -140,7 +140,7 @@ Student-Deep-Research-Assistant
 └── .env                  # API keys (not included in repo)
 ⚙️ Installation
 1️⃣ Clone the repository
-git clone https://github.com/your-username/student-deep-research-assistant.git
+git clone https://github.com/2k23csaiml2313622-code/Student-Deep-Research-Assistant.git
 cd student-deep-research-assistant
 2️⃣ Create a virtual environment
 python -m venv venv
@@ -221,3 +221,4 @@ Artificial Intelligence / Machine Learning
 ⭐ If you found this project useful
 
 Please consider starring the repository.
+

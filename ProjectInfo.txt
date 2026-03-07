@@ -1,0 +1,21 @@
+User Query
+     ↓
+Query Decomposition
+     ↓
+Web Search (DuckDuckGo)
+     ↓
+Website Scraping
+     ↓
+PDF Extraction
+     ↓
+Chunking
+     ↓
+Embeddings (Sentence Transformers)
+     ↓
+Chroma Vector Database
+     ↓
+Retriever
+     ↓
+Groq LLM
+     ↓
+Research Answer + Structured Report + Sources

@@ -18,3 +18,5 @@ sentence-transformers
 torch
 chromadb
 pandas
+numpy
+scikit-learn

@@ -29,6 +29,7 @@ def evaluate_rag(query, answer, contexts):
 
     # 2️⃣ Faithfulness Score (Answer vs Context)
     faithfulness = np.mean(cosine_similarity(answer_emb, context_emb))
+    faithfullnes= (faithfullness + 1) /2
 
     return {
         "Relevance Score": round(float(relevance), 3),

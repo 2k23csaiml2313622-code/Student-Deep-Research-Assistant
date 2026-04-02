@@ -1,18 +1,26 @@
+import os
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
-# Load embedding model once
+# =========================
+# CREATE PERSISTENT FOLDER
+# =========================
+os.makedirs("./chroma_db", exist_ok=True)
+
+# =========================
+# LOAD EMBEDDING MODEL
+# =========================
 embedding_model = HuggingFaceEmbeddings(
     model_name="sentence-transformers/all-MiniLM-L6-v2"
 )
 
-
+# =========================
+# CREATE VECTOR STORE
+# =========================
 def create_vector_store(text):
 
-    # =========================
-    # SAFETY CHECK (CRITICAL)
-    # =========================
+    # 🔥 SAFETY CHECK
     if not text or not text.strip():
         raise ValueError("No valid text provided for vector store.")
 
@@ -35,16 +43,21 @@ def create_vector_store(text):
         raise ValueError("Text splitting resulted in empty chunks.")
 
     # =========================
-    # CREATE VECTOR DB
+    # CREATE CHROMA DB (FIXED)
     # =========================
     vector_db = Chroma.from_texts(
         texts=docs,
-        embedding=embedding_model
+        embedding=embedding_model,
+        persist_directory="./chroma_db",   # ✅ CRITICAL FIX
+        collection_name="rag_collection"   # ✅ STABILITY FIX
     )
 
     return vector_db
 
 
+# =========================
+# RETRIEVE CONTEXT
+# =========================
 def retrieve_context(vector_db, query):
 
     retriever = vector_db.as_retriever(
@@ -53,10 +66,12 @@ def retrieve_context(vector_db, query):
 
     docs = retriever.invoke(query)
 
-    # EXTRA SAFETY
+    # 🔥 SAFETY CHECK
     if not docs:
         return ""
 
-    context = "\n".join([doc.page_content for doc in docs if doc.page_content])
+    context = "\n".join(
+        [doc.page_content for doc in docs if doc.page_content]
+    )
 
     return context

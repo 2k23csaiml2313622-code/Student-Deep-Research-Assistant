@@ -7,7 +7,7 @@ from langchain_groq import ChatGroq
 from utils import web_search, scrape_website, read_pdf
 from rag_pipeline import create_vector_store, retrieve_context
 from report_generator import generate_report
-from evaluation import evaluate_rag  # lightweight evaluation
+from evaluation import evaluate_rag  # updated evaluation
 
 
 # =========================
@@ -68,7 +68,7 @@ if st.button("Start Research"):
     progress.progress(20)
 
     # =========================
-    # SCRAPING (IMPROVED)
+    # SCRAPING
     # =========================
 
     for url in urls:
@@ -92,7 +92,7 @@ if st.button("Start Research"):
     progress.progress(60)
 
     # =========================
-    # ❗ CRITICAL FIX (EMPTY DATA CHECK)
+    # EMPTY DATA CHECK
     # =========================
 
     if not text_data.strip():
@@ -150,17 +150,28 @@ Query:
     st.write(report)
 
     # =========================
-    # PERFORMANCE EVALUATION
+    # PERFORMANCE EVALUATION (UPDATED)
     # =========================
 
     if run_eval:
         try:
-            contexts_list = context.split("\n")
+            # Improved context splitting
+            contexts_list = [c.strip() for c in context.split("\n") if c.strip()]
 
             metrics = evaluate_rag(query, answer, contexts_list)
 
             st.subheader("📊 Performance Metrics")
-            st.write(metrics)
+
+            # Better UI display
+            col1, col2, col3 = st.columns(3)
+
+            col1.metric("Relevance", metrics["Relevance Score"])
+            col1.metric("Faithfulness", metrics["Faithfulness Score"])
+
+            col2.metric("Precision", metrics["Precision Score"])
+            col2.metric("Recall", metrics["Recall Score"])
+
+            col3.metric("Groundedness", metrics["Groundedness Score"])
 
         except Exception as e:
             st.warning("⚠️ Evaluation could not be computed.")

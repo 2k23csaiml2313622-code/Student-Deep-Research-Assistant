@@ -33,4 +33,4 @@ def retrieve_context(vector_db, query):
 
     context = "\n".join([doc.page_content for doc in docs])
 
-    return context                         this is my current rag_pipeline.py code
+    return context                         

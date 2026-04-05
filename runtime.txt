@@ -1,3 +1,2 @@
 python-3.10
-langchain==0.2.14
-langchain-community==0.2.12
+

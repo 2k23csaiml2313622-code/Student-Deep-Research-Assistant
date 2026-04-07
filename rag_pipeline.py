@@ -1,5 +1,5 @@
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import FAISS
+from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
 embedding_model = HuggingFaceEmbeddings(
@@ -15,9 +15,9 @@ def create_vector_store(text):
 
     docs = splitter.split_text(text)
 
-    vector_db = FAISS.from_texts(
+    vector_db = Chroma.from_texts(
         docs,
-        embedding_model
+        embedding=embedding_model
     )
 
     return vector_db
@@ -25,10 +25,12 @@ def create_vector_store(text):
 
 def retrieve_context(vector_db, query):
 
-    retriever = vector_db.as_retriever(search_kwargs={"k": 4})
+    retriever = vector_db.as_retriever(
+        search_kwargs={"k":4}
+    )
 
     docs = retriever.invoke(query)
 
     context = "\n".join([doc.page_content for doc in docs])
 
-    return context
+    return context                         

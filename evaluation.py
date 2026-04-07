@@ -1,17 +1,15 @@
 from sklearn.metrics.pairwise import cosine_similarity
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from sentence_transformers import SentenceTransformer
 import numpy as np
 
-# Load lightweight embedding model
-embedding_model = HuggingFaceEmbeddings(
-    model_name="sentence-transformers/all-MiniLM-L6-v2"
-)
+# Load model once
+model = SentenceTransformer("all-MiniLM-L6-v2")
 
 
 def evaluate_rag(query, answer, contexts):
 
     try:
-        # Clean contexts
+        # 🔥 Clean contexts properly (same as your original code)
         contexts = [c.strip() for c in contexts if c.strip()]
 
         if len(contexts) == 0:
@@ -24,46 +22,51 @@ def evaluate_rag(query, answer, contexts):
             }
 
         # =========================
-        # EMBEDDINGS (UPDATED)
+        # EMBEDDINGS (same logic)
         # =========================
-
-        query_emb = embedding_model.embed_query(query)
-        answer_emb = embedding_model.embed_query(answer)
-        context_emb = embedding_model.embed_documents(contexts)
-
-        # Convert to numpy arrays
-        query_emb = np.array(query_emb).reshape(1, -1)
-        answer_emb = np.array(answer_emb).reshape(1, -1)
-        context_emb = np.array(context_emb)
+        query_emb = model.encode([query])
+        answer_emb = model.encode([answer])
+        context_emb = model.encode(contexts)
 
         # =========================
         # EXISTING METRICS
         # =========================
 
+        # Relevance → Query vs Answer
         relevance = cosine_similarity(query_emb, answer_emb)[0][0]
+
+        # Faithfulness → Answer vs Context (average)
         faithfulness = np.mean(cosine_similarity(answer_emb, context_emb))
 
         # =========================
-        # NEW METRICS
+        # NEW METRICS (ADDED)
         # =========================
 
+        # Precision → how much answer is supported by best matching context
         precision = np.max(cosine_similarity(answer_emb, context_emb))
+
+        # Recall → how much of context is covered in answer
         recall = np.mean(cosine_similarity(context_emb, answer_emb))
+
+        # Groundedness → strictest alignment (worst-case similarity)
         groundedness = np.min(cosine_similarity(answer_emb, context_emb))
 
         # =========================
-        # NORMALIZATION (0–1)
+        # NORMALIZATION (same style)
         # =========================
 
-        def normalize(x):
-            return (float(x) + 1) / 2
+        relevance = (relevance + 1) / 2
+        faithfulness = (faithfulness + 1) / 2
+        precision = (precision + 1) / 2
+        recall = (recall + 1) / 2
+        groundedness = (groundedness + 1) / 2
 
         return {
-            "Relevance Score": round(normalize(relevance), 3),
-            "Faithfulness Score": round(normalize(faithfulness), 3),
-            "Precision Score": round(normalize(precision), 3),
-            "Recall Score": round(normalize(recall), 3),
-            "Groundedness Score": round(normalize(groundedness), 3)
+            "Relevance Score": round(float(relevance), 3),
+            "Faithfulness Score": round(float(faithfulness), 3),
+            "Precision Score": round(float(precision), 3),
+            "Recall Score": round(float(recall), 3),
+            "Groundedness Score": round(float(groundedness), 3)
         }
 
     except Exception as e:
